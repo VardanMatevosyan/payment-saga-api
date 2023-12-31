@@ -33,16 +33,41 @@ public class KafkaConfig {
   @Value("${payment-saga-topic}")
   private String paymentSagaTopic;
 
+  @Value("${payment-api-payment-status-topic}")
+  private String paymentApiPaymentStatusTopic;
+
+  @Value("${inventory-payment-saga-topic-dlt}")
+  private String inventoryPaymentSagaTopicDlt;
+
   @Value("${kafka-server-host}")
   private String serverHost;
 
   @Value("${kafka-payment-consumer-group-id}")
   private String paymentConsumerGroupId;
 
+
   @Bean
   @Qualifier("paymentSagaTopic")
   public NewTopic paymentSagaTopic() {
     return TopicBuilder.name(paymentSagaTopic)
+        .partitions(2)
+        .replicas(1)
+        .build();
+  }
+
+  @Bean
+  @Qualifier("paymentApiPaymentStatusTopic")
+  public NewTopic paymentApiPaymentStatusTopic() {
+    return TopicBuilder.name(paymentApiPaymentStatusTopic)
+        .partitions(2)
+        .replicas(1)
+        .build();
+  }
+
+  @Bean
+  @Qualifier("inventoryPaymentSagaTopicDlt")
+  public NewTopic inventoryPaymentSagaTopicDlt() {
+    return TopicBuilder.name(inventoryPaymentSagaTopicDlt)
         .partitions(2)
         .replicas(1)
         .build();
@@ -90,6 +115,7 @@ public class KafkaConfig {
     config.put(ConsumerConfig.GROUP_ID_CONFIG, paymentConsumerGroupId);
     config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+    config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
     config.put(TRUSTED_PACKAGES, "*");
     return config;
   }
